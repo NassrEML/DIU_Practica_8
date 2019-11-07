@@ -1,9 +1,18 @@
 
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 /*
@@ -18,9 +27,23 @@ import javax.swing.SwingWorker;
  */
 public class PrincipalFrame extends javax.swing.JFrame {
 
-    private JFileChooser fc = new JFileChooser();
+    JFileChooser jdcOriginFolder = new JFileChooser();
+    JFileChooser jdcDestFolder = new JFileChooser();
     private File originFolder, destinationFolder;
-    private ArrayList <File> filesToCompress = new ArrayList<>();
+    public static String rutaOriginal, rutaDestino, nombreDelZip;
+    
+    
+    private void clean(){
+        originFolder        = null;
+        destinationFolder   = null;
+        rutaOriginal        = null;  
+        rutaDestino         = null;   
+        nombreDelZip        = null;    
+        originPath.setText("");
+        destinationPath.setText("");
+                
+    }
+    
     // private mySwingWorker worker;
     /**
      * Creates new form NewJFrame
@@ -40,8 +63,6 @@ public class PrincipalFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -59,20 +80,6 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("Lanza tarea costosa");
-        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton1MouseClicked(evt);
-            }
-        });
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        jButton2.setText("Otro botón");
-
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel2.setText("DIU - ZIP");
 
@@ -80,16 +87,16 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
         jLabel4.setText("Carpeta destino:");
 
+        originPath.setEditable(false);
         originPath.setForeground(new java.awt.Color(204, 204, 204));
-        originPath.setText("Ruta origen...");
         originPath.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 originPathActionPerformed(evt);
             }
         });
 
+        destinationPath.setEditable(false);
         destinationPath.setForeground(new java.awt.Color(204, 204, 204));
-        destinationPath.setText("Ruta destino...");
 
         buttonOriginPath.setText("Seleccionar carpeta origen");
         buttonOriginPath.addActionListener(new java.awt.event.ActionListener() {
@@ -99,6 +106,11 @@ public class PrincipalFrame extends javax.swing.JFrame {
         });
 
         buttonDestinationPath.setText("Seleccionar carpeta destino");
+        buttonDestinationPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonDestinationPathActionPerformed(evt);
+            }
+        });
 
         buttonStartZip.setText("Iniciar compresión");
         buttonStartZip.addActionListener(new java.awt.event.ActionListener() {
@@ -108,6 +120,11 @@ public class PrincipalFrame extends javax.swing.JFrame {
         });
 
         buttonStopZip.setText("Cancelar");
+        buttonStopZip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonStopZipActionPerformed(evt);
+            }
+        });
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -121,11 +138,6 @@ public class PrincipalFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jButton2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton1))
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -180,48 +192,86 @@ public class PrincipalFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonStartZip)
                     .addComponent(buttonStopZip))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
-                    .addComponent(jButton1))
-                .addContainerGap())
+                .addGap(56, 56, 56))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        // TODO add your handling code here:
-        System.out.print("Pulsado!!");
-        
-        Worker1 worker = new Worker1();
-        worker.execute();
-        
-        /*for (int i = 0; i < 10; i++) {
-            try {
-                Thread.sleep(1000);
-                System.out.print(i);
-            } catch (InterruptedException e) {
-                System.out.println("interrumpido");
-            }
-        }*/
-    }//GEN-LAST:event_jButton1MouseClicked
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void originPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_originPathActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_originPathActionPerformed
 
     private void buttonOriginPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOriginPathActionPerformed
-        // TODO add your handling code here:
+        
+        jdcOriginFolder.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        jdcOriginFolder.showOpenDialog(jdcOriginFolder);
+        jdcOriginFolder.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println(e.getActionCommand());
+                if(e.getActionCommand()=="ApproveSelection"){
+                    originFolder = jdcOriginFolder.getSelectedFile();
+                    rutaOriginal = originFolder.getPath().replaceAll("\\\\", "\\\\\\\\");
+                    originPath.setText(rutaOriginal);
+
+                    String aux = rutaOriginal.concat(".zip");
+
+                    // obteniendo el nombre del archivo comprimido, pj: "micarpeta.zip"
+                    String[] rutaDestinoDividida = aux.split("\\\\");
+                    nombreDelZip = rutaDestinoDividida[rutaDestinoDividida.length-1];
+                }
+            }
+        });
     }//GEN-LAST:event_buttonOriginPathActionPerformed
 
     private void buttonStartZipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStartZipActionPerformed
-        // TODO add your handling code here:
+       
+        
+        Worker1 worker = new Worker1();
+        worker.execute();
+        
+
     }//GEN-LAST:event_buttonStartZipActionPerformed
+
+    private void buttonDestinationPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDestinationPathActionPerformed
+
+        jdcDestFolder.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        jdcDestFolder.showOpenDialog(jdcDestFolder);
+
+        jdcDestFolder.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getActionCommand()=="ApproveSelection"){
+                    destinationFolder = jdcDestFolder.getSelectedFile();
+                    String ruta = destinationFolder.getPath().replaceAll("\\\\", "\\\\\\\\");
+
+                    rutaDestino = ruta + "\\" + nombreDelZip;
+                    destinationPath.setText(rutaDestino);    
+                }
+            }
+        });
+
+        
+    }//GEN-LAST:event_buttonDestinationPathActionPerformed
+
+    private void buttonStopZipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStopZipActionPerformed
+        
+        if(destinationPath.getText().isEmpty() && originPath.getText().isEmpty()){
+            JOptionPane.showMessageDialog(null, "Seleccione las rutas deseadas","Cancelar",JOptionPane.INFORMATION_MESSAGE); 
+        }else if (!destinationPath.getText().isEmpty() || !originPath.getText().isEmpty()){
+              this.clean();
+        }else{
+            this.clean();
+            Worker1.parar = true;
+            JOptionPane.showMessageDialog(null, "La compresión ha sigo cancelada","Cancelar",JOptionPane.INFORMATION_MESSAGE);     
+        }
+
+        
+        
+    }//GEN-LAST:event_buttonStopZipActionPerformed
 
     /**
      * @param args the command line arguments
@@ -265,8 +315,6 @@ public class PrincipalFrame extends javax.swing.JFrame {
     private javax.swing.JButton buttonStartZip;
     private javax.swing.JButton buttonStopZip;
     private javax.swing.JTextField destinationPath;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -276,6 +324,43 @@ public class PrincipalFrame extends javax.swing.JFrame {
     private javax.swing.JProgressBar loadingBar;
     private javax.swing.JTextField originPath;
     // End of variables declaration//GEN-END:variables
+
+    
+    
+    public static void comprimir(String rutaOriginal, String rutaDestino) throws Exception  {
+        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(rutaDestino));
+        agregarCarpeta("",rutaOriginal, zip);
+        zip.flush();
+        zip.close();
+        
+        
+    }
+
+    private static void agregarCarpeta(String ruta, String carpeta, ZipOutputStream zip) throws Exception {
+        File directorio = new File(carpeta);
+        for (String nombreArchivo : directorio.list()) {
+            if (ruta.equals("")) {
+                agregarArchivo(directorio.getName(), carpeta + "/" + nombreArchivo, zip);
+            } else {
+                agregarArchivo(ruta + "/" + directorio.getName(), carpeta + "/" + nombreArchivo, zip);
+            }
+        }
+    }
+
+    private static void agregarArchivo(String ruta, String directorio, ZipOutputStream zip) throws Exception {
+        File archivo = new File(directorio);
+        if (archivo.isDirectory()) {
+            agregarCarpeta(ruta, directorio, zip);
+        } else {
+            byte[] buffer = new byte[4096];
+            int leido;
+            FileInputStream entrada = new FileInputStream(archivo);
+            zip.putNextEntry(new ZipEntry(ruta + "/" + archivo.getName()));
+            while ((leido = entrada.read(buffer)) > 0) {
+                zip.write(buffer, 0, leido);
+            }
+        }
+    }
 }
 
 
@@ -283,6 +368,8 @@ public class PrincipalFrame extends javax.swing.JFrame {
 class Worker1 extends SwingWorker<Double, Integer> {
    // Esta etiqueta se recibe en el constructor o a través de un
    // metodo setEtiqueta().
+    boolean finalizado = true;
+    public static boolean parar = false;
    
    @Override
     protected Double doInBackground() throws Exception {
@@ -292,30 +379,32 @@ class Worker1 extends SwingWorker<Double, Integer> {
         + Thread.currentThread().getName()); 
         
         /********** Algo de procesamiento costoso ***********/
-        for (int i = 0; i < 10; i++) {
-            try {
-                Thread.sleep(1000);
-                System.out.print(i);
-            } catch (InterruptedException e) {
-                System.out.println("interrumpido");
-            }
-            publish(i);
-        }      
+        try {
+            PrincipalFrame.comprimir(PrincipalFrame.rutaOriginal, PrincipalFrame.rutaDestino);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "No se ha podido realizar la compresion",
+                    "ERROR", JOptionPane.ERROR_MESSAGE);
+            finalizado = false;
+        }
+        publish();
+          
         return 100.0;
     }
     
    @Override
     protected void done() {
-       // Mostramos el nombre del hilo para ver que efectivamente esto
-       // se ejecuta en el hilo de eventos.
-       System.out.println("done() esta en el hilo " + Thread.currentThread().getName());     
+        if(finalizado)JOptionPane.showMessageDialog(null, "Archivo ZIP creado correctamente !","Finalizado",JOptionPane.INFORMATION_MESSAGE);
+            
     }
 
     
     @Override
     protected void process(List<Integer> chunks) {
-        System.out.println("process() esta en el hilo "
-                + Thread.currentThread().getName());
-        System.out.print(chunks);        
+        if(parar) Thread.currentThread().stop();
+        
+        /**
+         * aqui habra que poner los de la barra de progreso
+         */
+        //JOptionPane.showMessageDialog(null, "Comprimiendo...");      
     }
 }
