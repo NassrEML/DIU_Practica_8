@@ -27,20 +27,23 @@ import javax.swing.SwingWorker;
  */
 public class PrincipalFrame extends javax.swing.JFrame {
 
-    JFileChooser jdcOriginFolder = new JFileChooser();
-    JFileChooser jdcDestFolder = new JFileChooser();
+    private JFileChooser jdcOriginFolder = new JFileChooser();
+    private JFileChooser jdcDestFolder = new JFileChooser();
     private File originFolder, destinationFolder;
-    public static String rutaOriginal, rutaDestino, nombreDelZip;
+    public static String rutaOriginal, rutaDestinoZip;
+    private String rutaDestino, nombreDelZip;
+    private boolean running = false;
     
     
     private void clean(){
         originFolder        = null;
         destinationFolder   = null;
         rutaOriginal        = null;  
-        rutaDestino         = null;   
+        rutaDestinoZip         = null;   
         nombreDelZip        = null;    
         originPath.setText("");
         destinationPath.setText("");
+        buttonDestinationPath.setEnabled(false);
                 
     }
     
@@ -50,6 +53,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
      */
     public PrincipalFrame() {
         initComponents();
+        buttonDestinationPath.setEnabled(false);
     }
     
     
@@ -221,16 +225,26 @@ public class PrincipalFrame extends javax.swing.JFrame {
                     // obteniendo el nombre del archivo comprimido, pj: "micarpeta.zip"
                     String[] rutaDestinoDividida = aux.split("\\\\");
                     nombreDelZip = rutaDestinoDividida[rutaDestinoDividida.length-1];
+                    buttonDestinationPath.setEnabled(true);
                 }
             }
         });
     }//GEN-LAST:event_buttonOriginPathActionPerformed
 
     private void buttonStartZipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStartZipActionPerformed
-       
-        
-        Worker1 worker = new Worker1();
-        worker.execute();
+               
+        if(destinationPath.getText().isEmpty() || originPath.getText().isEmpty()){
+                JOptionPane.showMessageDialog(null, "Seleccione las rutas deseadas","Cancelar",JOptionPane.ERROR_MESSAGE);
+                
+        }else if(rutaOriginal.equals(rutaDestino)){
+            JOptionPane.showMessageDialog(null, "No se admiten rutas equivalentes de origen y destino",
+                    "ERROR", JOptionPane.ERROR_MESSAGE);
+            
+        }else{
+            Worker1 worker = new Worker1();
+            worker.execute();     
+            running = true;
+        }
         
 
     }//GEN-LAST:event_buttonStartZipActionPerformed
@@ -246,10 +260,10 @@ public class PrincipalFrame extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(e.getActionCommand()=="ApproveSelection"){
                     destinationFolder = jdcDestFolder.getSelectedFile();
-                    String ruta = destinationFolder.getPath().replaceAll("\\\\", "\\\\\\\\");
+                    rutaDestino = destinationFolder.getPath().replaceAll("\\\\", "\\\\\\\\");
 
-                    rutaDestino = ruta + "\\" + nombreDelZip;
-                    destinationPath.setText(rutaDestino);    
+                    rutaDestinoZip = rutaDestino + "\\" + nombreDelZip;
+                    destinationPath.setText(rutaDestinoZip);    
                 }
             }
         });
@@ -259,18 +273,16 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
     private void buttonStopZipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStopZipActionPerformed
         
-        if(destinationPath.getText().isEmpty() && originPath.getText().isEmpty()){
-            JOptionPane.showMessageDialog(null, "Seleccione las rutas deseadas","Cancelar",JOptionPane.INFORMATION_MESSAGE); 
-        }else if (!destinationPath.getText().isEmpty() || !originPath.getText().isEmpty()){
-              this.clean();
-        }else{
-            this.clean();
+        if(running){
             Worker1.parar = true;
-            JOptionPane.showMessageDialog(null, "La compresión ha sigo cancelada","Cancelar",JOptionPane.INFORMATION_MESSAGE);     
+            JOptionPane.showMessageDialog(null, "La compresión ha sigo cancelada","Cancelar",JOptionPane.INFORMATION_MESSAGE);  
+            
+        } else {
+            if(destinationPath.getText().isEmpty() && originPath.getText().isEmpty()){
+                JOptionPane.showMessageDialog(null, "Seleccione las rutas deseadas","Cancelar",JOptionPane.INFORMATION_MESSAGE);
+            }
         }
-
-        
-        
+        this.clean();
     }//GEN-LAST:event_buttonStopZipActionPerformed
 
     /**
@@ -377,10 +389,12 @@ class Worker1 extends SwingWorker<Double, Integer> {
    // esto NO se ejecuta en el hilo de eventos.
         System.out.println("doInBackground() esta en el hilo "
         + Thread.currentThread().getName()); 
-        
+        System.out.println("primer ESTADO DEL HILO:  " + Thread.currentThread().getState());
+
         /********** Algo de procesamiento costoso ***********/
         try {
-            PrincipalFrame.comprimir(PrincipalFrame.rutaOriginal, PrincipalFrame.rutaDestino);
+            PrincipalFrame.comprimir(PrincipalFrame.rutaOriginal, PrincipalFrame.rutaDestinoZip);
+            System.out.println("Procesando..");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "No se ha podido realizar la compresion",
                     "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -400,7 +414,13 @@ class Worker1 extends SwingWorker<Double, Integer> {
     
     @Override
     protected void process(List<Integer> chunks) {
-        if(parar) Thread.currentThread().stop();
+        // no para el hilo o algo raro hacer pero la compresion no finaliza con esta orden
+        //if(parar) Thread.currentThread().stop();
+        
+        
+        
+        //System.out.println("ESTADO DEL HILO:  " + Thread.currentThread().getState());
+        //System.out.println("se ha detenido la Compresion");
         
         /**
          * aqui habra que poner los de la barra de progreso
