@@ -240,6 +240,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
         }else if(rutaOriginal.equals(rutaDestino)){
             JOptionPane.showMessageDialog(null, "No se admiten rutas equivalentes de origen y destino",
                     "ERROR", JOptionPane.ERROR_MESSAGE);
+             destinationPath.setText("");
             
         }else{
             Worker1 worker = new Worker1();
