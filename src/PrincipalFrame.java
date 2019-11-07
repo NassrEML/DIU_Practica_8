@@ -1,6 +1,9 @@
 
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
 
 /*
@@ -10,11 +13,15 @@ import javax.swing.SwingWorker;
  */
 
 /**
- *
- * @author cayetanoguerraartal
+ * @author Nassr Eddine Mousati Lamhamdi
+ * Yousuf Boutahar El Maachi
  */
 public class PrincipalFrame extends javax.swing.JFrame {
 
+    private JFileChooser fc = new JFileChooser();
+    private File originFolder, destinationFolder;
+    private ArrayList <File> filesToCompress = new ArrayList<>();
+    // private mySwingWorker worker;
     /**
      * Creates new form NewJFrame
      */
@@ -32,8 +39,23 @@ public class PrincipalFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        originPath = new javax.swing.JTextField();
+        destinationPath = new javax.swing.JTextField();
+        buttonOriginPath = new javax.swing.JButton();
+        buttonDestinationPath = new javax.swing.JButton();
+        buttonStartZip = new javax.swing.JButton();
+        buttonStopZip = new javax.swing.JButton();
+        loadingBar = new javax.swing.JProgressBar();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+
+        jLabel1.setText("jLabel1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -51,25 +73,118 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
         jButton2.setText("Otro botón");
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel2.setText("DIU - ZIP");
+
+        jLabel3.setText("Carpeta origen:");
+
+        jLabel4.setText("Carpeta destino:");
+
+        originPath.setForeground(new java.awt.Color(204, 204, 204));
+        originPath.setText("Ruta origen...");
+        originPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                originPathActionPerformed(evt);
+            }
+        });
+
+        destinationPath.setForeground(new java.awt.Color(204, 204, 204));
+        destinationPath.setText("Ruta destino...");
+
+        buttonOriginPath.setText("Seleccionar carpeta origen");
+        buttonOriginPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonOriginPathActionPerformed(evt);
+            }
+        });
+
+        buttonDestinationPath.setText("Seleccionar carpeta destino");
+
+        buttonStartZip.setText("Iniciar compresión");
+        buttonStartZip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonStartZipActionPerformed(evt);
+            }
+        });
+
+        buttonStopZip.setText("Cancelar");
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(42, 42, 42)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addContainerGap(190, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jButton2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton1))
+                            .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(destinationPath))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(originPath, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(buttonOriginPath)
+                                    .addComponent(buttonDestinationPath)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(174, 174, 174)
+                                .addComponent(jLabel2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(98, 98, 98)
+                                .addComponent(buttonStartZip)
+                                .addGap(55, 55, 55)
+                                .addComponent(buttonStopZip)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(loadingBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(52, 52, 52)
-                .addComponent(jButton1)
+                .addContainerGap()
+                .addComponent(jLabel2)
+                .addGap(23, 23, 23)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(originPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonOriginPath))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
-                .addContainerGap(178, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(destinationPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonDestinationPath))
+                .addGap(18, 18, 18)
+                .addComponent(loadingBar, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonStartZip)
+                    .addComponent(buttonStopZip))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton1))
+                .addContainerGap())
         );
 
         pack();
@@ -95,6 +210,18 @@ public class PrincipalFrame extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void originPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_originPathActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_originPathActionPerformed
+
+    private void buttonOriginPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOriginPathActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_buttonOriginPathActionPerformed
+
+    private void buttonStartZipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStartZipActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_buttonStartZipActionPerformed
 
     /**
      * @param args the command line arguments
@@ -133,8 +260,21 @@ public class PrincipalFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonDestinationPath;
+    private javax.swing.JButton buttonOriginPath;
+    private javax.swing.JButton buttonStartZip;
+    private javax.swing.JButton buttonStopZip;
+    private javax.swing.JTextField destinationPath;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JProgressBar loadingBar;
+    private javax.swing.JTextField originPath;
     // End of variables declaration//GEN-END:variables
 }
 
