@@ -54,6 +54,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
     public PrincipalFrame() {
         initComponents();
         buttonDestinationPath.setEnabled(false);
+        this.setResizable(false);
     }
     
     
@@ -244,6 +245,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
             Worker1 worker = new Worker1();
             worker.execute();     
             running = true;
+            buttonStartZip.setEnabled(false);
         }
         
 
@@ -275,7 +277,9 @@ public class PrincipalFrame extends javax.swing.JFrame {
         
         if(running){
             Worker1.parar = true;
-            JOptionPane.showMessageDialog(null, "La compresión ha sigo cancelada","Cancelar",JOptionPane.INFORMATION_MESSAGE);  
+            loadingBar.setValue(0);
+            JOptionPane.showMessageDialog(null, "La compresión ha sigo cancelada","Cancelar",JOptionPane.INFORMATION_MESSAGE); 
+            buttonStartZip.setEnabled(true);
             
         } else {
             if(destinationPath.getText().isEmpty() && originPath.getText().isEmpty()){
@@ -333,36 +337,48 @@ public class PrincipalFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JProgressBar loadingBar;
+    private static javax.swing.JProgressBar loadingBar;
     private javax.swing.JTextField originPath;
     // End of variables declaration//GEN-END:variables
 
-    
+
     
     public static void comprimir(String rutaOriginal, String rutaDestino) throws Exception  {
+        
+        int value = 0;
         ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(rutaDestino));
-        agregarCarpeta("",rutaOriginal, zip);
+        agregarCarpeta("",rutaOriginal, zip, value);
         zip.flush();
         zip.close();
+        
+        loadingBar.setValue(0);
         
         
     }
 
-    private static void agregarCarpeta(String ruta, String carpeta, ZipOutputStream zip) throws Exception {
+    private static void agregarCarpeta(String ruta, String carpeta, ZipOutputStream zip, int value) throws Exception {
         File directorio = new File(carpeta);
         for (String nombreArchivo : directorio.list()) {
+            
+            loadingBar.setValue(value+=10);
+            loadingBar.repaint();
+
             if (ruta.equals("")) {
-                agregarArchivo(directorio.getName(), carpeta + "/" + nombreArchivo, zip);
+                agregarArchivo(directorio.getName(), carpeta + "/" + nombreArchivo, zip, value);
             } else {
-                agregarArchivo(ruta + "/" + directorio.getName(), carpeta + "/" + nombreArchivo, zip);
+                agregarArchivo(ruta + "/" + directorio.getName(), carpeta + "/" + nombreArchivo, zip, value);
             }
         }
     }
 
-    private static void agregarArchivo(String ruta, String directorio, ZipOutputStream zip) throws Exception {
+    private static void agregarArchivo(String ruta, String directorio, ZipOutputStream zip, int value) throws Exception {
+        
+        loadingBar.setValue(value+=10);
+        loadingBar.repaint();
+        
         File archivo = new File(directorio);
         if (archivo.isDirectory()) {
-            agregarCarpeta(ruta, directorio, zip);
+            agregarCarpeta(ruta, directorio, zip, value);
         } else {
             byte[] buffer = new byte[4096];
             int leido;
@@ -402,12 +418,13 @@ class Worker1 extends SwingWorker<Double, Integer> {
         }
         publish();
           
-        return 100.0;
+        return 0.0;
     }
     
    @Override
     protected void done() {
         if(finalizado)JOptionPane.showMessageDialog(null, "Archivo ZIP creado correctamente !","Finalizado",JOptionPane.INFORMATION_MESSAGE);
+        
             
     }
 
